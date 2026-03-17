@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📈 REX 股票分析系統 - Powered by Pollinations AI</title>
+    <title>📈 REX 股票分析系統 - AI 智能分析</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -17,193 +17,83 @@
         h1 { text-align: center; margin-bottom: 30px; font-size: 2rem; }
         h1 span { background: linear-gradient(90deg, #00d9ff, #00ff88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .badge {
-            display: block;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .badge img {
-            height: 20px;
-        }
+        .badge { text-align: center; margin-bottom: 20px; }
         
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+        .search-box { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap; }
         .search-box input {
-            padding: 15px 20px;
-            font-size: 18px;
-            border: none;
-            border-radius: 30px;
-            width: 300px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            outline: none;
+            padding: 15px 20px; font-size: 18px; border: none; border-radius: 30px; width: 300px;
+            background: rgba(255,255,255,0.1); color: #fff; outline: none;
         }
         .search-box input::placeholder { color: rgba(255,255,255,0.5); }
         .search-box button {
-            padding: 15px 30px;
-            font-size: 18px;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(90deg, #00d9ff, #00ff88);
-            color: #1a1a2e;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.2s;
+            padding: 15px 30px; font-size: 18px; border: none; border-radius: 30px;
+            background: linear-gradient(90deg, #00d9ff, #00ff88); color: #1a1a2e; cursor: pointer; font-weight: bold;
         }
         .search-box button:hover { transform: scale(1.05); }
         
-        .market-status {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-        }
+        .market-status { text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; }
         .market-status .index { font-size: 2rem; font-weight: bold; }
         .market-status .change { font-size: 1.2rem; }
         .positive { color: #ff4444; }
         .negative { color: #44ff44; }
         
-        .result-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 30px;
-            margin-top: 20px;
-            display: none;
-        }
+        .result-card { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; margin-top: 20px; display: none; }
         .result-card.show { display: block; }
         
-        .stock-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+        .stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
         .stock-name { font-size: 2rem; font-weight: bold; }
         .stock-price { font-size: 3rem; font-weight: bold; }
         
-        .score-box {
-            text-align: center;
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-        }
+        .score-box { text-align: center; padding: 30px; border-radius: 20px; margin-bottom: 30px; }
         .score-box.excellent { background: linear-gradient(135deg, #00c853, #00e676); }
         .score-box.good { background: linear-gradient(135deg, #ffd600, #ffab00); }
         .score-box.poor { background: linear-gradient(135deg, #ff5252, #ff1744); }
         .score-value { font-size: 4rem; font-weight: bold; }
         .score-label { font-size: 1.2rem; opacity: 0.9; }
         
-        .indicators {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .indicator {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-        }
+        .indicators { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .indicator { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; text-align: center; }
         .indicator .label { color: rgba(255,255,255,0.7); margin-bottom: 5px; }
         .indicator .value { font-size: 1.5rem; font-weight: bold; }
         
-        .recommendation {
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .recommendation { padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
         .recommendation.buy { background: rgba(0,200,83,0.2); border: 2px solid #00c853; }
         .recommendation.sell { background: rgba(255,82,82,0.2); border: 2px solid #ff5252; }
         .recommendation.hold { background: rgba(255,214,0,0.2); border: 2px solid #ffd600; }
         
-        .targets {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .target {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
+        .targets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+        .target { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center; }
         .target .label { color: rgba(255,255,255,0.7); }
         .target .value { font-size: 1.3rem; font-weight: bold; }
         
-        .loading {
-            text-align: center;
-            padding: 50px;
-            display: none;
-        }
+        .loading { text-align: center; padding: 50px; display: none; }
         .loading.show { display: block; }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.1);
-            border-top-color: #00d9ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
+        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top-color: #00d9ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        .error {
-            background: rgba(255,82,82,0.2);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            display: none;
-        }
+        .error { background: rgba(255,82,82,0.2); padding: 20px; border-radius: 15px; text-align: center; display: none; }
         .error.show { display: block; }
         
-        /* AI Analysis Section */
-        .ai-analysis {
-            background: rgba(138,43,226,0.1);
-            border: 2px solid #8a2be2;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 30px;
-        }
-        .ai-analysis h3 {
-            color: #8a2be2;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .ai-analysis .content {
-            color: rgba(255,255,255,0.9);
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-        .ai-analysis .thinking {
-            color: rgba(255,255,255,0.5);
-            font-style: italic;
-        }
+        .ai-analysis { background: rgba(138,43,226,0.1); border: 2px solid #8a2be2; border-radius: 15px; padding: 20px; margin-top: 30px; }
+        .ai-analysis h3 { color: #8a2be2; margin-bottom: 15px; }
+        .ai-analysis .content { color: rgba(255,255,255,0.9); line-height: 1.6; white-space: pre-wrap; }
+        .ai-analysis .thinking { color: rgba(255,255,255,0.5); font-style: italic; }
+        .ai-analysis .error-msg { color: #ff6b6b; }
         
-        /* Pollinations Badge */
-        .pollinations-credit {
-            text-align: center;
-            margin-top: 30px;
-            padding: 15px;
+        .pollinations-credit { text-align: center; margin-top: 30px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .pollinations-credit a { color: #00d9ff; text-decoration: none; }
+        
+        .intro-section {
             background: rgba(255,255,255,0.05);
-            border-radius: 10px;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
         }
-        .pollinations-credit a {
-            color: #00d9ff;
-            text-decoration: none;
-        }
+        .intro-section h2 { color: #00d9ff; margin-bottom: 20px; }
+        .intro-section ul { list-style: none; padding: 0; }
+        .intro-section li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .intro-section li:last-child { border-bottom: none; }
+        .intro-section .icon { margin-right: 10px; }
     </style>
 </head>
 <body>
@@ -212,8 +102,19 @@
         
         <div class="badge">
             <a href="https://pollinations.ai">
-                <img src="https://img.shields.io/badge/Built%20with-Pollinations-8a2be2?style=for-the-badge&logo=data:image/png;base64,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" alt="Built with Pollinations.ai">
+                <img src="https://img.shields.io/badge/Built%20with-Pollinations-8a2be2?style=for-the-badge" alt="Built with Pollinations.ai">
             </a>
+        </div>
+        
+        <div class="intro-section">
+            <h2>🎯 功能介紹</h2>
+            <ul>
+                <li><span class="icon">🔍</span> <strong>單股快速健檢</strong> - 輸入代號立即分析</li>
+                <li><span class="icon">📊</span> <strong>健康度評分</strong> - 0-100 分（綠/黃/紅）</li>
+                <li><span class="icon">📈</span> <strong>技術指標</strong> - MA5、MA20、RSI、KD</li>
+                <li><span class="icon">🤖</span> <strong>AI 智能分析</strong> - Pollinations AI 生成的投資建議</li>
+                <li><span class="icon">🎯</span> <strong>買賣建議</strong> - 停利/停損計算</li>
+            </ul>
         </div>
         
         <div class="market-status">
@@ -223,12 +124,12 @@
         
         <div class="search-box">
             <input type="text" id="stock-input" placeholder="輸入股票代號 (如: 2330)">
-            <button onclick="analyzeStock()">🔍 分析</button>
+            <button onclick="analyzeStock()">🔍 開始分析</button>
         </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="margin-top: 20px;">分析中...</p>
+            <p style="margin-top: 20px;">分析中，請稍候...</p>
         </div>
         
         <div class="error" id="error"></div>
@@ -253,43 +154,21 @@
             </div>
             
             <div class="targets">
-                <div class="target">
-                    <div class="label">🎯 停利目標 1</div>
-                    <div class="value" id="target1">+5%</div>
-                </div>
-                <div class="target">
-                    <div class="label">🎯 停利目標 2</div>
-                    <div class="value" id="target2">+10%</div>
-                </div>
-                <div class="target">
-                    <div class="label">🛡️ 建議停損</div>
-                    <div class="value" id="stop-loss">-5%</div>
-                </div>
+                <div class="target"><div class="label">🎯 停利目標 1</div><div class="value" id="target1">+5%</div></div>
+                <div class="target"><div class="label">🎯 停利目標 2</div><div class="value" id="target2">+10%</div></div>
+                <div class="target"><div class="label">🛡️ 建議停損</div><div class="value" id="stop-loss">-5%</div></div>
             </div>
             
             <div class="indicators">
-                <div class="indicator">
-                    <div class="label">MA5 (周線)</div>
-                    <div class="value" id="ma5">-</div>
-                </div>
-                <div class="indicator">
-                    <div class="label">MA20 (月線)</div>
-                    <div class="value" id="ma20">-</div>
-                </div>
-                <div class="indicator">
-                    <div class="label">RSI</div>
-                    <div class="value" id="rsi">-</div>
-                </div>
-                <div class="indicator">
-                    <div class="label">KD</div>
-                    <div class="value" id="kd">-</div>
-                </div>
+                <div class="indicator"><div class="label">MA5 (周線)</div><div class="value" id="ma5">-</div></div>
+                <div class="indicator"><div class="label">MA20 (月線)</div><div class="value" id="ma20">-</div></div>
+                <div class="indicator"><div class="label">RSI</div><div class="value" id="rsi">-</div></div>
+                <div class="indicator"><div class="label">KD</div><div class="value" id="kd">-</div></div>
             </div>
             
-            <!-- AI Analysis Section -->
             <div class="ai-analysis" id="ai-analysis">
                 <h3>🤖 AI 智能分析 <small>(Powered by Pollinations AI)</small></h3>
-                <div class="thinking" id="ai-thinking">正在生成 AI 分析...</div>
+                <div class="thinking" id="ai-thinking">正在生成 AI 分析，請稍候...</div>
                 <div class="content" id="ai-content" style="display: none;"></div>
             </div>
         </div>
@@ -328,8 +207,9 @@
             document.getElementById('result').classList.remove('show');
             document.getElementById('error').classList.remove('show');
             
-            // Reset AI section
+            // 重置 AI 區塊
             document.getElementById('ai-thinking').style.display = 'block';
+            document.getElementById('ai-thinking').textContent = '正在生成 AI 分析，請稍候...';
             document.getElementById('ai-content').style.display = 'none';
             
             try {
@@ -338,12 +218,14 @@
                 const stockData = await stockResponse.json();
                 
                 if (!stockData.data || stockData.data.length === 0) {
-                    throw new Error('找不到該股票資料');
+                    throw new Error('找不到該股票資料，請檢查代號是否正確');
                 }
                 
                 const info = stockData.data[0];
                 const price = parseFloat(info[16]) || 0;
                 const name = info[0];
+                
+                if (price === 0) throw new Error('無法取得股價資料');
                 
                 // 取得歷史資料計算技術指標
                 const history = await getStockHistory(input);
@@ -375,10 +257,10 @@
             document.getElementById('stock-name').textContent = name;
             document.getElementById('stock-id').textContent = input;
             document.getElementById('stock-price').textContent = price.toLocaleString();
-            document.getElementById('ma5').textContent = ma5.toFixed(2);
-            document.getElementById('ma20').textContent = ma20.toFixed(2);
-            document.getElementById('rsi').textContent = rsi.toFixed(2);
-            document.getElementById('kd').textContent = kd.k.toFixed(2) + ' / ' + kd.d.toFixed(2);
+            document.getElementById('ma5').textContent = ma5 ? ma5.toFixed(2) : '-';
+            document.getElementById('ma20').textContent = ma20 ? ma20.toFixed(2) : '-';
+            document.getElementById('rsi').textContent = rsi ? rsi.toFixed(2) : '-';
+            document.getElementById('kd').textContent = kd ? `${kd.k.toFixed(2)} / ${kd.d.toFixed(2)}` : '-';
             
             // 分數顯示
             const scoreEl = document.getElementById('score');
@@ -431,68 +313,83 @@
         
         // Pollinations AI 分析
         async function generateAIAnalysis(stockId, name, price, ma5, ma20, rsi, kd, score) {
-            const prompt = `你是一位專業的台股分析師。請用繁體中文分析以下股票：
+            const prompt = `你是一位專業的台股分析師。請用繁體中文用 2-3 句話簡潔分析以下股票：
 
-股票代號：${stockId}
-股票名稱：${name}
+股票代號：${stockId} ${name}
 收盤價：${price} 元
-MA5：${ma5.toFixed(2)} 元
-MA20：${ma20.toFixed(2)} 元
-RSI：${rsi.toFixed(2)}
-KD：K=${kd.k.toFixed(2)}, D=${kd.d.toFixed(2)}
+MA5：${ma5?.toFixed(2)} 元
+MA20：${ma20?.toFixed(2)} 元
+RSI：${rsi?.toFixed(2)}
+KD：K=${kd?.k.toFixed(2)}, D=${kd?.d.toFixed(2)}
 健康分數：${score}分
 
-請提供：
-1. 簡短的技術分析觀點
-2. 買賣建議（請根據分數給出合理建議）
-3. 風險提示
-
-請用 2-3 句話簡潔回答。`;
+請直接給出技術分析觀點和買賣建議。`;
             
             try {
-                // 使用 Pollinations AI API
                 const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         model: 'openai',
-                        messages: [
-                            { role: 'user', content: prompt }
-                        ],
-                        seed: Math.random()
+                        messages: [{ role: 'user', content: prompt }],
+                        seed: Math.floor(Math.random() * 1000000)
                     })
                 });
                 
+                if (!response.ok) throw new Error('API 請求失敗');
+                
                 const data = await response.json();
                 
-                if (data.choices && data.choices[0]) {
-                    const aiText = data.choices[0].message.content;
+                if (data.choices && data.choices[0]?.message?.content) {
                     document.getElementById('ai-thinking').style.display = 'none';
-                    document.getElementById('ai-content').textContent = aiText;
+                    document.getElementById('ai-content').textContent = data.choices[0].message.content;
                     document.getElementById('ai-content').style.display = 'block';
                 } else {
                     throw new Error('AI 回應格式錯誤');
                 }
             } catch (e) {
-                document.getElementById('ai-thinking').textContent = '⚠️ AI 分析暫時無法使用，請稍後再試';
                 console.error('AI Error:', e);
+                // 提供本地備用分析
+                const localAnalysis = generateLocalAnalysis(score, price, ma5, ma20, rsi, kd);
+                document.getElementById('ai-thinking').style.display = 'none';
+                document.getElementById('ai-content').innerHTML = `<span class="error-msg">⚠️ AI 分析暫時無法使用</span><br><br>📊 本地分析：${localAnalysis}`;
+                document.getElementById('ai-content').style.display = 'block';
             }
+        }
+        
+        // 本地備用分析
+        function generateLocalAnalysis(score, price, ma5, ma20, rsi, kd) {
+            let advice = '';
+            
+            if (score >= 80) {
+                advice = '健康分數高，技術指標偏多，建議可考慮分批買進。';
+            } else if (score >= 50) {
+                advice = '健康分數中等，處於震盪盤整階段，建議觀望或區間操作。';
+            } else {
+                advice = '健康分數低，技術指標偏弱，建議觀望或設定停損。';
+            }
+            
+            if (price < ma20) {
+                advice += ' 目前股價跌破月線，需特別留意。';
+            }
+            
+            return advice;
         }
         
         function getTodayDate() {
             const today = new Date();
-            return today.getFullYear() - 1911 + 
+            return (today.getFullYear() - 1911) + 
                    String(today.getMonth() + 1).padStart(2, '0') + 
                    String(today.getDate()).padStart(2, '0');
         }
         
         async function getStockHistory(stockNo) {
             const history = [];
-            for (let i = 0; i < 60; i++) {
-                const date = new Date();
-                date.setDate(date.getDate() - i - 30);
+            const today = new Date();
+            
+            for (let i = 0; i < 30; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
                 const dateStr = (date.getFullYear() - 1911) + 
                                String(date.getMonth() + 1).padStart(2, '0') + 
                                String(date.getDate()).padStart(2, '0');
@@ -503,7 +400,6 @@ KD：K=${kd.k.toFixed(2)}, D=${kd.d.toFixed(2)}
                     if (data.data) {
                         for (const row of data.data) {
                             history.push({
-                                date: row[0],
                                 close: parseFloat(row[6]),
                                 high: parseFloat(row[4]),
                                 low: parseFloat(row[5])
@@ -512,17 +408,16 @@ KD：K=${kd.k.toFixed(2)}, D=${kd.d.toFixed(2)}
                     }
                 } catch (e) {}
             }
-            return history.reverse().slice(-60);
+            return history.reverse();
         }
         
         function calculateMA(history, period) {
-            if (history.length < period) return 0;
-            const recent = history.slice(-period);
-            return recent.reduce((sum, d) => sum + d.close, 0) / period;
+            if (history.length < period) return null;
+            return history.slice(-period).reduce((sum, d) => sum + d.close, 0) / period;
         }
         
         function calculateRSI(history) {
-            if (history.length < 14) return 50;
+            if (history.length < 14) return null;
             const recent = history.slice(-14);
             let gains = 0, losses = 0;
             for (let i = 1; i < recent.length; i++) {
@@ -535,12 +430,13 @@ KD：K=${kd.k.toFixed(2)}, D=${kd.d.toFixed(2)}
         }
         
         function calculateKD(history) {
-            if (history.length < 9) return { k: 50, d: 50 };
+            if (history.length < 9) return null;
             const recent = history.slice(-9);
             let k = 50, d = 50;
             for (const row of recent) {
-                const rsv = (row.close - Math.min(...recent.map(d => d.low))) / 
-                           (Math.max(...recent.map(d => d.high)) - Math.min(...recent.map(d => d.low))) + 0.01) * 100;
+                const minLow = Math.min(...recent.map(d => d.low));
+                const maxHigh = Math.max(...recent.map(d => d.high));
+                const rsv = ((row.close - minLow) / (maxHigh - minLow + 0.01)) * 100;
                 k = (2/3) * k + (1/3) * rsv;
                 d = (2/3) * d + (1/3) * k;
             }
@@ -555,8 +451,8 @@ KD：K=${kd.k.toFixed(2)}, D=${kd.d.toFixed(2)}
             if (rsi < 30) score += 10;
             else if (rsi > 70) score -= 5;
             else score += 5;
-            if (kd.k > kd.d && kd.k < 80) score += 10;
-            else if (kd.k < kd.d && kd.k > 20) score -= 10;
+            if (kd && kd.k > kd.d && kd.k < 80) score += 10;
+            else if (kd && kd.k < kd.d && kd.k > 20) score -= 10;
             return Math.min(100, Math.max(0, score));
         }
         
