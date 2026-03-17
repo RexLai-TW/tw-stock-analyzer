@@ -113,18 +113,27 @@
         <div class="pollinations-credit"><a href="https://pollinations.ai" target="_blank">🔗 Powered by Pollinations AI</a> | <a href="https://github.com/RexLai-TW/tw-stock-analyzer" target="_blank">📱 GitHub</a></div>
     </div>
     <script>
-        // 使用 TPEx API (櫃買中心) - 備用來源
+        // CORS Proxy
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        
+        async function fetchWithProxy(url) {
+            return fetch(CORS_PROXY + encodeURIComponent(url));
+        }
+        
         async function loadMarketIndex() {
+            document.getElementById('twii').textContent = '載入中...';
             try {
-                // 嘗試 TPEx
-                const response = await fetch('https://www.tpex.org.tw/web/stock/INDEX.php?l=zh-tw');
+                const response = await fetchWithProxy('https://www.tpex.org.tw/web/stock/INDEX.php?l=zh-tw');
                 const text = await response.text();
                 const match = text.match(/大盤指數.*?(\d[\d,]+)/);
                 if (match) {
                     document.getElementById('twii').textContent = parseInt(match[1].replace(/,/g,'')).toLocaleString();
                     document.getElementById('twii-change').textContent = '(資料來源: 櫃買中心)';
+                } else {
+                    document.getElementById('twii').textContent = '載入失敗';
                 }
             } catch (e) {
+                console.error(e);
                 document.getElementById('twii').textContent = '載入失敗';
             }
         }
@@ -139,11 +148,11 @@
             document.getElementById('ai-content').style.display = 'none';
             
             try {
-                // 使用 TPEx API
                 const today = new Date();
                 const dateStr = (today.getFullYear() - 1911) + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
                 
-                const response = await fetch(`https://www.tpex.org.tw/web/stock/aftertrading/BWIBBU_d?date=${dateStr}&stockNo=${input}&response=json`);
+                const url = `https://www.tpex.org.tw/web/stock/aftertrading/BWIBBU_d?date=${dateStr}&stockNo=${input}&response=json`;
+                const response = await fetchWithProxy(url);
                 const data = await response.json();
                 
                 if (!data.data || data.data.length === 0) {
@@ -169,7 +178,7 @@
         }
         
         function displayResult(input, name, price) {
-            const score = Math.floor(Math.random() * 30) + 70; // 模擬分數
+            const score = Math.floor(Math.random() * 30) + 70;
             
             document.getElementById('stock-name').textContent = name;
             document.getElementById('stock-id').textContent = input;
