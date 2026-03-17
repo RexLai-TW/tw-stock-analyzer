@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📈 REX 股票分析系統</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; font-size: 2rem; }
+        h1 span { background: linear-gradient(90deg, #00d9ff, #00ff88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        .search-box input {
+            padding: 15px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 30px;
+            width: 300px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            outline: none;
+        }
+        .search-box input::placeholder { color: rgba(255,255,255,0.5); }
+        .search-box button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            color: #1a1a2e;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .search-box button:hover { transform: scale(1.05); }
+        
+        .market-status {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+        }
+        .market-status .index { font-size: 2rem; font-weight: bold; }
+        .market-status .change { font-size: 1.2rem; }
+        .positive { color: #ff4444; }
+        .negative { color: #44ff44; }
+        
+        .result-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+            display: none;
+        }
+        .result-card.show { display: block; }
+        
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .stock-name { font-size: 2rem; font-weight: bold; }
+        .stock-price { font-size: 3rem; font-weight: bold; }
+        
+        .score-box {
+            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .score-box.excellent { background: linear-gradient(135deg, #00c853, #00e676); }
+        .score-box.good { background: linear-gradient(135deg, #ffd600, #ffab00); }
+        .score-box.poor { background: linear-gradient(135deg, #ff5252, #ff1744); }
+        .score-value { font-size: 4rem; font-weight: bold; }
+        .score-label { font-size: 1.2rem; opacity: 0.9; }
+        
+        .indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .indicator {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .indicator .label { color: rgba(255,255,255,0.7); margin-bottom: 5px; }
+        .indicator .value { font-size: 1.5rem; font-weight: bold; }
+        
+        .recommendation {
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .recommendation.buy { background: rgba(0,200,83,0.2); border: 2px solid #00c853; }
+        .recommendation.sell { background: rgba(255,82,82,0.2); border: 2px solid #ff5252; }
+        .recommendation.hold { background: rgba(255,214,0,0.2); border: 2px solid #ffd600; }
+        
+        .targets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .target {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .target .label { color: rgba(255,255,255,0.7); }
+        .target .value { font-size: 1.3rem; font-weight: bold; }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            display: none;
+        }
+        .loading.show { display: block; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top-color: #00d9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .error {
+            background: rgba(255,82,82,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+        .error.show { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 <span>REX 股票分析系統</span></h1>
+        
+        <div class="market-status">
+            <div class="index">加權指數 <span id="twii">載入中...</span></div>
+            <div class="change" id="twii-change"></div>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="stock-input" placeholder="輸入股票代號 (如: 2330)">
+            <button onclick="analyzeStock()">🔍 分析</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 20px;">分析中...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result-card" id="result">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-name" id="stock-name">台積電</div>
+                    <div id="stock-id">2330</div>
+                </div>
+                <div class="stock-price" id="stock-price">1,845</div>
+            </div>
+            
+            <div class="score-box" id="score-box">
+                <div class="score-value" id="score">85</div>
+                <div class="score-label" id="score-label">體質優良</div>
+            </div>
+            
+            <div class="recommendation" id="recommendation">
+                <div style="font-size: 1.5rem; font-weight: bold;" id="rec-title">建議買進</div>
+                <div id="rec-desc">多頭強勢，建議分批買入</div>
+            </div>
+            
+            <div class="targets">
+                <div class="target">
+                    <div class="label">🎯 停利目標 1</div>
+                    <div class="value" id="target1">+5%</div>
+                </div>
+                <div class="target">
+                    <div class="label">🎯 停利目標 2</div>
+                    <div class="value" id="target2">+10%</div>
+                </div>
+                <div class="target">
+                    <div class="label">🛡️ 建議停損</div>
+                    <div class="value" id="stop-loss">-5%</div>
+                </div>
+            </div>
+            
+            <div class="indicators">
+                <div class="indicator">
+                    <div class="label">MA5 (周線)</div>
+                    <div class="value" id="ma5">-</div>
+                </div>
+                <div class="indicator">
+                    <div class="label">MA20 (月線)</div>
+                    <div class="value" id="ma20">-</div>
+                </div>
+                <div class="indicator">
+                    <div class="label">RSI</div>
+                    <div class="value" id="rsi">-</div>
+                </div>
+                <div class="indicator">
+                    <div class="label">KD</div>
+                    <div class="value" id="kd">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 載入大盤指數
+        async function loadMarketIndex() {
+            try {
+                const response = await fetch('https://www.twse.com.tw/rwd/zh/TAIEX?response=json');
+                const data = await response.json();
+                if (data.data) {
+                    const latest = data.data[data.data.length - 1];
+                    document.getElementById('twii').textContent = parseInt(latest[1]).toLocaleString();
+                    const change = parseFloat(latest[4]);
+                    const changeEl = document.getElementById('twii-change');
+                    changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+                    changeEl.className = 'change ' + (change >= 0 ? 'positive' : 'negative');
+                }
+            } catch (e) {
+                document.getElementById('twii').textContent = '載入失敗';
+            }
+        }
+        
+        // 股票分析
+        async function analyzeStock() {
+            const input = document.getElementById('stock-input').value.trim();
+            if (!input) return;
+            
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('error').classList.remove('show');
+            
+            try {
+                // 取得股票基本資料
+                const stockResponse = await fetch(`https://www.twse.com.tw/rwd/zh/stock/getStockInfo?date=${getTodayDate()}&stockNo=${input}&response=json`);
+                const stockData = await stockResponse.json();
+                
+                if (!stockData.data || stockData.data.length === 0) {
+                    throw new Error('找不到該股票資料');
+                }
+                
+                const info = stockData.data[0];
+                const price = parseFloat(info[16]) || 0; // 收盤價
+                const name = info[0]; // 股票名稱
+                
+                // 取得歷史資料計算技術指標
+                const history = await getStockHistory(input);
+                
+                // 計算指標
+                const ma5 = calculateMA(history, 5);
+                const ma20 = calculateMA(history, 20);
+                const rsi = calculateRSI(history);
+                const kd = calculateKD(history);
+                
+                // 計算健康分數
+                const score = calculateScore(price, ma5, ma20, rsi, kd);
+                
+                // 顯示結果
+                document.getElementById('stock-name').textContent = name;
+                document.getElementById('stock-id').textContent = input;
+                document.getElementById('stock-price').textContent = price.toLocaleString();
+                document.getElementById('ma5').textContent = ma5.toFixed(2);
+                document.getElementById('ma20').textContent = ma20.toFixed(2);
+                document.getElementById('rsi').textContent = rsi.toFixed(2);
+                document.getElementById('kd').textContent = kd.k.toFixed(2) + ' / ' + kd.d.toFixed(2);
+                
+                // 顯示分數
+                const scoreEl = document.getElementById('score');
+                const scoreBox = document.getElementById('score-box');
+                const scoreLabel = document.getElementById('score-label');
+                
+                scoreEl.textContent = score;
+                
+                if (score >= 80) {
+                    scoreBox.className = 'score-box excellent';
+                    scoreLabel.textContent = '體質優良 🟢';
+                } else if (score >= 50) {
+                    scoreBox.className = 'score-box good';
+                    scoreLabel.textContent = '震盪盤整 🟡';
+                } else {
+                    scoreBox.className = 'score-box poor';
+                    scoreLabel.textContent = '弱勢危險 🔴';
+                }
+                
+                // 計算停利停損
+                const target1 = price * 1.05;
+                const target2 = price * 1.10;
+                const stopLoss = price * 0.95;
+                
+                document.getElementById('target1').textContent = target1.toLocaleString();
+                document.getElementById('target2').textContent = target2.toLocaleString();
+                document.getElementById('stop-loss').textContent = stopLoss.toLocaleString();
+                
+                // 買賣建議
+                const recEl = document.getElementById('recommendation');
+                const recTitle = document.getElementById('rec-title');
+                const recDesc = document.getElementById('rec-desc');
+                
+                if (score >= 80 && price > ma20) {
+                    recEl.className = 'recommendation buy';
+                    recTitle.textContent = '✅ 建議買進';
+                    recDesc.textContent = '多頭強勢，各項指標表現優異';
+                } else if (score < 50 || price < ma20) {
+                    recEl.className = 'recommendation sell';
+                    recTitle.textContent = '⚠️ 建議觀望';
+                    recDesc.textContent = '偏弱勢，建議等待突破訊號';
+                } else {
+                    recEl.className = 'recommendation hold';
+                    recTitle.textContent = '⏸️ 持有觀望';
+                    recDesc.textContent = '震盪整理中，等待方向明朗';
+                }
+                
+                document.getElementById('result').classList.add('show');
+                
+            } catch (e) {
+                document.getElementById('error').textContent = '❌ ' + e.message;
+                document.getElementById('error').classList.add('show');
+            }
+            
+            document.getElementById('loading').classList.remove('show');
+        }
+        
+        function getTodayDate() {
+            const today = new Date();
+            return today.getFullYear() - 1911 + 
+                   String(today.getMonth() + 1).padStart(2, '0') + 
+                   String(today.getDate()).padStart(2, '0');
+        }
+        
+        async function getStockHistory(stockNo) {
+            const history = [];
+            for (let i = 0; i < 60; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - i - 30);
+                const dateStr = (date.getFullYear() - 1911) + 
+                               String(date.getMonth() + 1).padStart(2, '0') + 
+                               String(date.getDate()).padStart(2, '0');
+                
+                try {
+                    const response = await fetch(`https://www.twse.com.tw/rwd/zh/afterRF04?date=${dateStr}&stockNo=${stockNo}&response=json`);
+                    const data = await response.json();
+                    if (data.data) {
+                        for (const row of data.data) {
+                            history.push({
+                                date: row[0],
+                                close: parseFloat(row[6]),
+                                high: parseFloat(row[4]),
+                                low: parseFloat(row[5])
+                            });
+                        }
+                    }
+                } catch (e) {}
+            }
+            return history.reverse().slice(-60);
+        }
+        
+        function calculateMA(history, period) {
+            if (history.length < period) return 0;
+            const recent = history.slice(-period);
+            return recent.reduce((sum, d) => sum + d.close, 0) / period;
+        }
+        
+        function calculateRSI(history) {
+            if (history.length < 14) return 50;
+            const recent = history.slice(-14);
+            let gains = 0, losses = 0;
+            for (let i = 1; i < recent.length; i++) {
+                const diff = recent[i].close - recent[i-1].close;
+                if (diff > 0) gains += diff;
+                else losses -= diff;
+            }
+            const rs = gains / (losses || 1);
+            return 100 - (100 / (1 + rs));
+        }
+        
+        function calculateKD(history) {
+            if (history.length < 9) return { k: 50, d: 50 };
+            const recent = history.slice(-9);
+            let k = 50, d = 50;
+            for (const row of recent) {
+                const rsv = (row.close - Math.min(...recent.map(d => d.low))) / 
+                           (Math.max(...recent.map(d => d.high)) - Math.min(...recent.map(d => d.low))) * 100;
+                k = (2/3) * k + (1/3) * rsv;
+                d = (2/3) * d + (1/3) * k;
+            }
+            return { k, d };
+        }
+        
+        function calculateScore(price, ma5, ma20, rsi, kd) {
+            let score = 50;
+            
+            // 價格相對均線
+            if (price > ma5) score += 10;
+            if (price > ma20) score += 15;
+            if (ma5 > ma20) score += 10; // 黃金交叉
+            
+            // RSI
+            if (rsi < 30) score += 10; // 超賣
+            else if (rsi > 70) score -= 5; // 超買
+            else score += 5;
+            
+            // KD
+            if (kd.k > kd.d && kd.k < 80) score += 10;
+            else if (kd.k < kd.d && kd.k > 20) score -= 10;
+            
+            return Math.min(100, Math.max(0, score));
+        }
+        
+        // Enter 鍵觸發搜尋
+        document.getElementById('stock-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') analyzeStock();
+        });
+        
+        // 載入大盤
+        loadMarketIndex();
+    </script>
+</body>
+</html>
