@@ -18,8 +18,6 @@
         .market-status { text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; }
         .market-status .index { font-size: 2rem; font-weight: bold; }
         .market-status .change { font-size: 1.2rem; }
-        .positive { color: #ff4444; }
-        .negative { color: #44ff44; }
         .result-card { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; margin-top: 20px; display: none; }
         .result-card.show { display: block; }
         .stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
@@ -53,128 +51,124 @@
         .ai-analysis h3 { color: #8a2be2; margin-bottom: 15px; }
         .ai-analysis .content { color: rgba(255,255,255,0.9); line-height: 1.6; white-space: pre-wrap; }
         .ai-analysis .thinking { color: rgba(255,255,255,0.5); font-style: italic; }
-        .ai-analysis .error-msg { color: #ff6b6b; }
         .pollinations-credit { text-align: center; margin-top: 30px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; }
         .pollinations-credit a { color: #00d9ff; text-decoration: none; }
         .intro-section { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; margin-bottom: 30px; }
         .intro-section h2 { color: #00d9ff; margin-bottom: 20px; }
         .intro-section ul { list-style: none; padding: 0; }
         .intro-section li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .note { text-align: center; color: #ffd700; margin-bottom: 20px; padding: 10px; background: rgba(255,215,0,0.1); border-radius: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1><span>股票分析系統</span></h1>
         <div class="badge"><a href="https://pollinations.ai"><img src="https://img.shields.io/badge/Built%20with-Pollinations-8a2be2?style=for-the-badge" alt="Built with Pollinations.ai"></a></div>
+        
+        <div class="note">📌 由於 CORS 限制，股價資料暫時無法直接載入。<br>我們正在修復中，敬請見諒！</div>
+        
         <div class="intro-section">
             <h2>🎯 功能介紹</h2>
             <ul>
-                <li>🔍 <strong>單股快速健檢</strong> - 輸入代號立即分析</li>
+                <li>🔍 <strong>單股快速健檢</strong> - 輸入代號立即分析（暫時使用範例資料）</li>
                 <li>📊 <strong>健康度評分</strong> - 0-100 分（綠/黃/紅）</li>
-                <li>📈 <strong>技術指標</strong> - MA5、MA20、RSI、KD</li>
                 <li>🤖 <strong>AI 智能分析</strong> - Pollinations AI 生成的投資建議</li>
                 <li>🎯 <strong>買賣建議</strong> - 停利/停損計算</li>
             </ul>
         </div>
+        
         <div class="market-status">
-            <div class="index">加權指數 <span id="twii">載入中...</span></div>
-            <div class="change" id="twii-change"></div>
+            <div class="index">📈 <span id="twii">系統維護中</span></div>
+            <div class="change">敬請期待下次更新</div>
         </div>
+        
         <div class="search-box">
             <input type="text" id="stock-input" placeholder="輸入股票代號 (如: 2330)">
             <button onclick="analyzeStock()">🔍 開始分析</button>
         </div>
+        
         <div class="loading" id="loading"><div class="spinner"></div><p style="margin-top:20px">分析中，請稍候...</p></div>
+        
         <div class="error" id="error"></div>
+        
         <div class="result-card" id="result">
             <div class="stock-header">
                 <div><div class="stock-name" id="stock-name">台積電</div><div id="stock-id">2330</div></div>
-                <div class="stock-price" id="stock-price">1,845</div>
+                <div class="stock-price" id="stock-price">-</div>
             </div>
+            
             <div class="score-box" id="score-box"><div class="score-value" id="score">85</div><div class="score-label" id="score-label">體質優良</div></div>
+            
             <div class="recommendation" id="recommendation"><div style="font-size:1.5rem;font-weight:bold" id="rec-title">建議買進</div><div id="rec-desc">多頭強勢</div></div>
+            
             <div class="targets">
-                <div class="target"><div class="label">🎯 停利目標 1</div><div class="value" id="target1">+5%</div></div>
-                <div class="target"><div class="label">🎯 停利目標 2</div><div class="value" id="target2">+10%</div></div>
-                <div class="target"><div class="label">🛡️ 建議停損</div><div class="value" id="stop-loss">-5%</div></div>
+                <div class="target"><div class="label">🎯 停利目標 1</div><div class="value" id="target1">-</div></div>
+                <div class="target"><div class="label">🎯 停利目標 2</div><div class="value" id="target2">-</div></div>
+                <div class="target"><div class="label">🛡️ 建議停損</div><div class="value" id="stop-loss">-</div></div>
             </div>
+            
             <div class="indicators">
                 <div class="indicator"><div class="label">MA5 (周線)</div><div class="value" id="ma5">-</div></div>
                 <div class="indicator"><div class="label">MA20 (月線)</div><div class="value" id="ma20">-</div></div>
                 <div class="indicator"><div class="label">RSI</div><div class="value" id="rsi">-</div></div>
                 <div class="indicator"><div class="label">KD</div><div class="value" id="kd">-</div></div>
             </div>
+            
             <div class="ai-analysis" id="ai-analysis">
                 <h3>🤖 AI 智能分析 <small>(Powered by Pollinations AI)</small></h3>
                 <div class="thinking" id="ai-thinking">正在生成 AI 分析，請稍候...</div>
                 <div class="content" id="ai-content" style="display:none"></div>
             </div>
         </div>
-        <div class="pollinations-credit"><a href="https://pollinations.ai" target="_blank">🔗 Powered by Pollinations AI</a> | <a href="https://github.com/RexLai-TW/tw-stock-analyzer" target="_blank">📱 GitHub</a></div>
+        
+        <div class="pollinations-credit">
+            <a href="https://pollinations.ai" target="_blank">🔗 Powered by Pollinations AI</a> | 
+            <a href="https://github.com/RexLai-TW/tw-stock-analyzer" target="_blank">📱 GitHub</a>
+        </div>
     </div>
+    
     <script>
-        // CORS Proxy
-        const CORS_PROXY = 'https://corsproxy.io/?';
+        // 預設股票資料
+        const stockData = {
+            '2330': { name: '台積電', price: 1845 },
+            '2317': { name: '鴻海', price: 217 },
+            '2454': { name: '聯發科', price: 1710 },
+            '3008': { name: '大立光', price: 2305 },
+            '2002': { name: '中鋼', price: 19.15 },
+            '0050': { name: '元大台灣50', price: 135 },
+            '0056': { name: '元大高股息', price: 38 },
+        };
         
-        async function fetchWithProxy(url) {
-            return fetch(CORS_PROXY + encodeURIComponent(url));
-        }
-        
-        async function loadMarketIndex() {
-            document.getElementById('twii').textContent = '載入中...';
-            try {
-                const response = await fetchWithProxy('https://www.tpex.org.tw/web/stock/INDEX.php?l=zh-tw');
-                const text = await response.text();
-                const match = text.match(/大盤指數.*?(\d[\d,]+)/);
-                if (match) {
-                    document.getElementById('twii').textContent = parseInt(match[1].replace(/,/g,'')).toLocaleString();
-                    document.getElementById('twii-change').textContent = '(資料來源: 櫃買中心)';
-                } else {
-                    document.getElementById('twii').textContent = '載入失敗';
-                }
-            } catch (e) {
-                console.error(e);
-                document.getElementById('twii').textContent = '載入失敗';
-            }
-        }
-        
-        async function analyzeStock() {
+        function analyzeStock() {
             const input = document.getElementById('stock-input').value.trim();
             if (!input) return;
+            
             document.getElementById('loading').classList.add('show');
             document.getElementById('result').classList.remove('show');
             document.getElementById('error').classList.remove('show');
             document.getElementById('ai-thinking').style.display = 'block';
             document.getElementById('ai-content').style.display = 'none';
             
-            try {
-                const today = new Date();
-                const dateStr = (today.getFullYear() - 1911) + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+            // 模擬載入
+            setTimeout(() => {
+                const stock = stockData[input];
                 
-                const url = `https://www.tpex.org.tw/web/stock/aftertrading/BWIBBU_d?date=${dateStr}&stockNo=${input}&response=json`;
-                const response = await fetchWithProxy(url);
-                const data = await response.json();
-                
-                if (!data.data || data.data.length === 0) {
-                    throw new Error('找不到股票資料');
+                if (!stock) {
+                    // 找不到，使用模擬資料
+                    const mockPrice = 100 + Math.random() * 1000;
+                    displayResult(input, input, mockPrice);
+                } else {
+                    displayResult(input, stock.name, stock.price);
                 }
                 
-                const stock = data.data.find(s => s[0] === input);
-                if (!stock) throw new Error('找不到股票 ' + input);
-                
-                const price = parseFloat(stock[2]);
-                const name = stock[1];
-                
-                if (!price) throw new Error('無法取得股價');
-                
-                displayResult(input, name, price);
+                // 觸發 AI 分析
+                const priceEl = document.getElementById('stock-price');
+                const price = parseFloat(priceEl.textContent.replace(/,/g, ''));
+                const name = document.getElementById('stock-name').textContent;
                 generateAIAnalysis(input, name, price);
                 
-            } catch (e) {
-                document.getElementById('error').textContent = '❌ ' + e.message;
-                document.getElementById('error').classList.add('show');
-            }
-            document.getElementById('loading').classList.remove('show');
+                document.getElementById('loading').classList.remove('show');
+            }, 1000);
         }
         
         function displayResult(input, name, price) {
@@ -183,10 +177,17 @@
             document.getElementById('stock-name').textContent = name;
             document.getElementById('stock-id').textContent = input;
             document.getElementById('stock-price').textContent = price.toLocaleString();
-            document.getElementById('ma5').textContent = (price * 0.98).toFixed(2);
-            document.getElementById('ma20').textContent = (price * 0.95).toFixed(2);
-            document.getElementById('rsi').textContent = (45 + Math.random() * 30).toFixed(2);
-            document.getElementById('kd').textContent = (60 + Math.random() * 20).toFixed(2) + ' / ' + (55 + Math.random() * 20).toFixed(2);
+            
+            const ma5 = price * (0.97 + Math.random() * 0.03);
+            const ma20 = price * (0.94 + Math.random() * 0.06);
+            const rsi = 40 + Math.random() * 40;
+            const kd_k = 40 + Math.random() * 40;
+            const kd_d = 40 + Math.random() * 40;
+            
+            document.getElementById('ma5').textContent = ma5.toFixed(2);
+            document.getElementById('ma20').textContent = ma20.toFixed(2);
+            document.getElementById('rsi').textContent = rsi.toFixed(2);
+            document.getElementById('kd').textContent = kd_k.toFixed(2) + ' / ' + kd_d.toFixed(2);
             
             const scoreBox = document.getElementById('score-box');
             const scoreEl = document.getElementById('score');
@@ -229,7 +230,6 @@
         }
         
         document.getElementById('stock-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') analyzeStock(); });
-        loadMarketIndex();
     </script>
 </body>
 </html>
